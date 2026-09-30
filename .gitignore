@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (Ignore local secrets, but allow template creation)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +40,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AI assistant / IDE settings (Uncomment if you want to keep AGENTS.md/CLAUDE.md private)
+# AGENTS.md
+# CLAUDE.md
+.vscode/
+.idea/

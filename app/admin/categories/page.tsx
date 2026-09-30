@@ -1,0 +1,1 @@
+import { AdminCategories } from "@/components/admin-categories"; export default function Categories(){return <AdminCategories/>;}

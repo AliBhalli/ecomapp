@@ -1,0 +1,5 @@
+ "use client";
+import Link from "next/link";
+import { CheckCircle2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+export function OrderSuccessClient(){const sp=useSearchParams();const order=sp.get("order");const not=sp.get("payment")==="not-configured";return <div className="container-shell py-20"><div className="mx-auto max-w-xl text-center"><CheckCircle2 className="mx-auto h-14 w-14 text-[var(--accent)]"/><div className="kicker mt-6">Order confirmed</div><h1 className="display-serif mt-2 text-4xl font-bold">{not?"Order created — payment pending":"Thank you for your order."}</h1><p className="mt-4 text-sm leading-6 text-muted">{order?<>Your order number is <strong className="text-[#171717]">{order}</strong>. {not?"Card payment was not configured, so please contact support before fulfillment.":"We’ll keep you updated as it moves through fulfillment."}</>:"Your order has been created."}</p><div className="mt-8 flex justify-center gap-3"><Link className="btn btn-dark" href="/account/orders">View orders</Link><Link className="btn btn-secondary" href="/shop">Continue shopping</Link></div></div></div>}

@@ -1,0 +1,8 @@
+import { NextRequest } from "next/server";
+import { requireUser } from "@/lib/auth";
+import { database } from "@/lib/db";
+import { created, ok, fail, handleRouteError } from "@/lib/http";
+import { ObjectId } from "mongodb";
+export async function GET(){try{const u=await requireUser();const db=await database();const xs=await db.collection("addresses").find({userId:u._id}).sort({isDefault:-1,createdAt:-1}).toArray();return ok(xs.map(x=>({...x,id:x._id.toHexString()})));}catch(e){return handleRouteError(e);}}
+export async function POST(req:NextRequest){try{const u=await requireUser();const b=await req.json();const fields=["fullName","line1","city","postalCode","country","phone"];for(const f of fields)if(!String(b[f]||"").trim())return fail(`${f} is required.`);const db=await database();const count=await db.collection("addresses").countDocuments({userId:u._id});const doc:any={_id:new ObjectId(),userId:u._id,label:String(b.label||"Home"),fullName:String(b.fullName),line1:String(b.line1),line2:String(b.line2||""),city:String(b.city),state:String(b.state||""),postalCode:String(b.postalCode),country:String(b.country),phone:String(b.phone),isDefault:Boolean(b.isDefault)||count===0,createdAt:new Date()};if(doc.isDefault)await db.collection("addresses").updateMany({userId:u._id},{$set:{isDefault:false}});await db.collection("addresses").insertOne(doc);return created({...doc,id:doc._id.toHexString()});}catch(e){return handleRouteError(e);}}
+export async function DELETE(req:NextRequest){try{const u=await requireUser();const b=await req.json();await (await database()).collection("addresses").deleteOne({_id:new ObjectId(String(b.id)),userId:u._id});return ok({deleted:true});}catch(e){return handleRouteError(e);}}

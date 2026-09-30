@@ -1,0 +1,7 @@
+import { NextRequest } from "next/server";
+import { requireAdmin } from "@/lib/auth";
+import { database } from "@/lib/db";
+import { ok, created, fail, handleRouteError } from "@/lib/http";
+import { ObjectId } from "mongodb";
+export async function GET(){try{await requireAdmin();const db=await database();const xs=await db.collection("coupons").find({}).sort({createdAt:-1}).toArray();return ok(xs.map(x=>({...x,id:x._id.toHexString()})));}catch(e){return handleRouteError(e);}}
+export async function POST(req:NextRequest){try{await requireAdmin();const b=await req.json();const code=String(b.code||"").trim().toUpperCase();const type=String(b.type||"percentage");const value=Number(b.value);if(!/^[A-Z0-9_-]{3,32}$/.test(code)||!["percentage","fixed"].includes(type)||!Number.isFinite(value)||value<=0)return fail("Enter a valid coupon.");const db=await database();if(await db.collection("coupons").findOne({code}))return fail("Coupon already exists.",409);const doc:any={_id:new ObjectId(),code,type,value,minSubtotal:b.minSubtotal?Number(b.minSubtotal):undefined,expiresAt:b.expiresAt?new Date(b.expiresAt):undefined,usageLimit:b.usageLimit?Number(b.usageLimit):undefined,usageCount:0,perUserLimit:b.perUserLimit?Number(b.perUserLimit):undefined,active:b.active!==false,createdAt:new Date(),updatedAt:new Date()};await db.collection("coupons").insertOne(doc);return created({...doc,id:doc._id.toHexString()});}catch(e){return handleRouteError(e);}}

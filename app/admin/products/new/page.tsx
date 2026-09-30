@@ -1,0 +1,1 @@
+import { ProductEditor } from "@/components/product-editor"; export default function NewProduct(){return <ProductEditor/>;}

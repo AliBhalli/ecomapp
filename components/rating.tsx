@@ -1,0 +1,1 @@
+export function Rating({value,count}:{value:number;count?:number}){return <span className="text-sm">★ {value.toFixed(1)}{count!==undefined&&<span className="ml-1 text-muted">({count})</span>}</span>}

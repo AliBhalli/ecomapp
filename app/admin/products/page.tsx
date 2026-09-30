@@ -1,0 +1,1 @@
+import { AdminProducts } from "@/components/admin-products"; export default function Products(){return <AdminProducts/>;}

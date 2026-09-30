@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound(){return <div className="container-shell py-24 text-center"><div className="kicker">404</div><h1 className="display-serif mt-2 text-5xl font-bold">That page wandered off.</h1><p className="mt-3 text-sm text-muted">The link may have moved.</p><Link href="/" className="btn btn-dark mt-6">Back home</Link></div>}

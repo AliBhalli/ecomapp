@@ -1,0 +1,1 @@
+import { AdminCustomers } from "@/components/admin-customers"; export default function Customers(){return <AdminCustomers/>;}

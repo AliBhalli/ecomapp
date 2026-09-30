@@ -1,0 +1,6 @@
+ "use client";
+import Link from "next/link";
+import { useEffect,useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { apiFetch } from "@/components/api";
+export default function Orders(){const [orders,setOrders]=useState<any[]|null>(null);useEffect(()=>{apiFetch<any[]>("/api/orders").then(r=>r.ok?setOrders(r.data):setOrders([]))},[]);return <div><div className="kicker">Account</div><h1 className="display-serif mt-2 text-4xl font-bold">Orders</h1>{!orders?<div className="mt-8 space-y-3">{[1,2,3].map(i=><div key={i} className="skeleton h-28 rounded-2xl"/>)}</div>:orders.length===0?<div className="panel mt-8 p-10 text-center"><div className="display-serif text-2xl font-bold">No orders yet.</div><Link href="/shop" className="btn btn-dark mt-5">Start shopping</Link></div>:<div className="mt-8 space-y-3">{orders.map(o=><Link key={o.id} href={`/account/orders/${o.id}`} className="panel block p-4 hover:shadow-soft transition"><div className="flex flex-wrap items-center gap-3"><div><div className="font-semibold">{o.orderNumber}</div><div className="mt-1 text-xs text-muted">{new Date(o.createdAt).toLocaleDateString()} · {o.items?.length} items</div></div><span className="pill ml-auto">{o.fulfillmentStatus}</span><div className="font-semibold">${o.total.toFixed(2)}</div><ArrowRight size={16}/></div></Link>)}</div>}</div>}

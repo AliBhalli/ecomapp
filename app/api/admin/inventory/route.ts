@@ -1,0 +1,7 @@
+import { NextRequest } from "next/server";
+import { requireAdmin } from "@/lib/auth";
+import { database } from "@/lib/db";
+import { ok, fail, handleRouteError } from "@/lib/http";
+import { ObjectId } from "mongodb";
+export async function GET(){try{await requireAdmin();const db=await database();const xs=await db.collection("products").find({},{projection:{name:1,sku:1,images:{$slice:1},variants:1,inventory:1,price:1,active:1}}).sort({name:1}).toArray();return ok(xs.map(x=>({id:x._id.toHexString(),name:x.name,sku:x.sku,image:x.images?.[0],price:x.price,active:x.active,variants:x.variants||[]})));}catch(e){return handleRouteError(e);}}
+export async function PATCH(req:NextRequest){try{await requireAdmin();const b=await req.json();const id=String(b.productId||"");const variantId=b.variantId?String(b.variantId):undefined;const quantity=Math.max(0,Math.floor(Number(b.quantity)));if(!/^[a-f\d]{24}$/i.test(id)||!Number.isFinite(quantity))return fail("Invalid inventory update.");const db=await database();let r;if(variantId)r=await db.collection("products").updateOne({_id:new ObjectId(id),"variants.id":variantId},{$set:{"variants.$.inventory":quantity,updatedAt:new Date()}});else r=await db.collection("products").updateOne({_id:new ObjectId(id)},{$set:{inventory:quantity,updatedAt:new Date()}});if(!r?.modifiedCount)return fail("Inventory item not found.",404);return ok({updated:true});}catch(e){return handleRouteError(e);}}

@@ -1,0 +1,8 @@
+import { NextRequest } from "next/server";
+import { requireUser } from "@/lib/auth";
+import { database } from "@/lib/db";
+import { hashPassword, verifyPassword } from "@/lib/security";
+import { ok, fail, handleRouteError } from "@/lib/http";
+export async function PATCH(req:NextRequest){
+ try{const u=await requireUser();const b=await req.json();const db=await database();const set:any={updatedAt:new Date()};if(b.name!==undefined){const n=String(b.name).trim();if(n.length<2)return fail("Name is too short.");set.name=n;}if(b.email!==undefined){const email=String(b.email).trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return fail("Enter a valid email.");const existing=await db.collection("users").findOne({email,_id:{$ne:u._id}});if(existing)return fail("That email is already in use.",409);set.email=email;}if(b.currentPassword||b.newPassword){if(!b.currentPassword||String(b.newPassword).length<8)return fail("Enter your current password and a new password of at least 8 characters.");const full=await db.collection("users").findOne({_id:u._id});if(!full||!verifyPassword(String(b.currentPassword),full.passwordHash))return fail("Current password is incorrect.",401);set.passwordHash=hashPassword(String(b.newPassword));}const r=await db.collection("users").findOneAndUpdate({_id:u._id},{$set:set},{returnDocument:"after",includeResultMetadata:false});if(!r)return fail("Account not found.",404);return ok({id:r._id.toHexString(),name:r.name,email:r.email,role:r.role,status:r.status});}catch(e){return handleRouteError(e);}
+}
