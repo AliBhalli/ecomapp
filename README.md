@@ -774,14 +774,6 @@ The repository should be treated as an actively developed application and the co
 
 ---
 
-# 📄 License
-
-No license file is currently listed in the repository root.
-
-If this project is intended to be distributed publicly, add an appropriate `LICENSE` file.
-
----
-
 ## Repository
 
 **GitHub:**
